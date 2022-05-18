@@ -11,14 +11,16 @@ from_list(L) -> {polygon, L}.
 % again.
 join({polygon, L1}, {polygon, L2}) ->
     from_list(lists:reverse(join_p1(L1, L2, []))).
-join_p1([X|T1], [X|T2], L3) -> join_p2(T1, T2, [X|L3]);
+join_p1([X|T1], [X|T2], L3) -> join_p2(T1, T2, [X|L3], X);
 join_p1([H1|T1], [H2|T2], L3) -> join_p1(T1, [H2|T2], [H1|L3]).
-join_p2([X|T1], [X], L3) -> join_p3(T1, [], [X|L3]);
-join_p2([H1|T1], [H2|T2], L3) -> join_p2([H1|T1], T2, [H2|L3]).
+join_p2(L1, [], L3, S) -> join_p3(L1, [], [S|L3]);
+join_p2([X|T1], [X], L3, _S) -> join_p3(T1, [], [X|L3]);
+join_p2([H1|T1], [H2|T2], L3, S) -> join_p2([H1|T1], T2, [H2|L3], S).
 join_p3([], [], L3) -> L3;
 join_p3([H|T], [], L3) -> join_p3(T, [], [H|L3]).
 
 join_test() ->
     {polygon, [1, 2, 4, 3]} = join(from_list([1, 2, 3]), from_list([2, 4, 3])),
     {polygon, [1, 2, 4, 3, 5]} = join(from_list([1, 2, 3, 5]), from_list([2, 4, 3])),
+    {polygon, [1, 2, 4, 5, 2, 3]} = join(from_list([1, 2, 3]), from_list([2, 4, 5])),
     ok.
