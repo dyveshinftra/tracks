@@ -9,8 +9,14 @@
 
 from_list(L) -> {polygon, L}.
 
-% join two polygons which share one common vertex or two neighbouring common
-% vertices
+% join two polygons
+%
+% restrictions
+%   - share one common vertex (first element of second polygon)
+%   - share two common vertices
+%       * must be neighbours in first polygon
+%       * must be first and last element of second polygon
+%   - share same "spin" (clockwise or counterclockwise)
 join({polygon, L1}, {polygon, L2}) ->
     from_list(lists:reverse(join(L1, L2, [], first, undefined))).
 
@@ -36,7 +42,14 @@ join([H1|T1], [H2|T2], A, first, V) -> join(T1, [H2|T2], [H1|A], first, V);
 join([H1|T1], [H2|T2], A, second, V) -> join([H1|T1], T2, [H2|A], second, V).
 
 join_test() ->
+    % smallest case: two common vertices
     {polygon, [1, 2, 4, 3]} = join(from_list([1, 2, 3]), from_list([2, 4, 3])),
+
+    % same as above, but first polygon has "tail"
     {polygon, [1, 2, 4, 3, 5]} = join(from_list([1, 2, 3, 5]), from_list([2, 4, 3])),
+
+    % smallest case: single common vertex
     {polygon, [1, 2, 4, 5, 2, 3]} = join(from_list([1, 2, 3]), from_list([2, 4, 5])),
+
+    % all done
     ok.
